@@ -6,7 +6,11 @@ import {
   Patch,
   Param,
   Delete,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { isMimeType } from 'class-validator';
 import { CertificatesService } from './certificates.service';
 import { CreateCertificateDto } from './dto/create-certificate.dto';
 import { UpdateCertificateDto } from './dto/update-certificate.dto';
@@ -16,7 +20,17 @@ export class CertificatesController {
   constructor(private readonly certificatesService: CertificatesService) {}
 
   @Post()
-  create(@Body() createCertificateDto: CreateCertificateDto) {
+  @UseInterceptors(FileInterceptor('file'))
+  create(
+    @Body() createCertificateDto: CreateCertificateDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (file.mimetype !== 'application/pdf') {
+      throw new Error('Invalid file type');
+    }
+
+    createCertificateDto.templateFile = file.path;
+
     return this.certificatesService.create(createCertificateDto);
   }
 
@@ -31,10 +45,15 @@ export class CertificatesController {
   }
 
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('file'))
   update(
     @Param('id') id: string,
     @Body() updateCertificateDto: UpdateCertificateDto,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
+    if (file) {
+      updateCertificateDto.templateFile = file.path;
+    }
     return this.certificatesService.update(+id, updateCertificateDto);
   }
 

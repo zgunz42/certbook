@@ -19,7 +19,12 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "typeorm": "PROJECT_DIR=$(pwd) ts-node ./node_modules/.bin/typeorm --config src/environments/database.ts"
+    "typeorm:cli": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli -f ./src/databases/ormconfig-migration.ts",
+    "migration:generate": "npm run typeorm:cli -- migration:generate -n",
+    "migration:create": "npm run typeorm:cli -- migration:create -n",
+    "migration:run": "npm run typeorm:cli -- migration:run",
+    "migration:revert": "npm run typeorm:cli -- migration:revert",
+    "seed": "ts-node -r tsconfig-paths/register ./src/databases/seeds/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
@@ -31,6 +36,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "express": "^4.17.3",
+    "lodash": "^4.17.21",
     "multer": "^1.4.4",
     "mysql2": "^2.3.3",
     "reflect-metadata": "^0.1.13",
@@ -46,6 +52,7 @@
     "@nestjs/testing": "^8.0.0",
     "@types/express": "^4.17.13",
     "@types/jest": "27.0.2",
+    "@types/lodash": "^4.14.179",
     "@types/multer": "^1.4.7",
     "@types/node": "^16.0.0",
     "@types/supertest": "^2.0.11",

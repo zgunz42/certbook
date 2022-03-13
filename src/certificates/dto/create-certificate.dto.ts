@@ -1,5 +1,6 @@
-import { IsArray, IsDateString, IsNotEmpty, IsString } from 'class-validator';
-import { Person } from '../entities/owner.entity';
+import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { PersonEntity } from '../entities/owner.entity';
 import { CertPropertyDto } from './cert-property.dto';
 
 export class CreateCertificateDto {
@@ -11,7 +12,8 @@ export class CreateCertificateDto {
 
   templateFile: string;
 
-  @IsArray()
+  // @IsArray()
+  @Transform(({ value }) => JSON.parse(value), { toClassOnly: true })
   templateData: CertPropertyDto[];
 
   certificateFile: string;
@@ -20,8 +22,10 @@ export class CreateCertificateDto {
   issueAt: Date;
 
   @IsNotEmpty()
-  owner: Person;
+  @Transform(({ value }) => JSON.parse(value))
+  owner: PersonEntity;
 
   @IsNotEmpty()
-  receiver: Person;
+  @Transform(({ value }) => JSON.parse(value))
+  receiver: PersonEntity;
 }

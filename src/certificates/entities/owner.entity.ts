@@ -1,6 +1,6 @@
 import { Column } from 'typeorm';
 
-export class Person {
+export class PersonEntity {
   @Column({ name: 'name' })
   name: string;
 

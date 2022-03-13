@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateCertificateDto } from './dto/create-certificate.dto';
-import { UpdateCertificateDto } from './dto/update-certificate.dto';
-import { Certificate } from './entities/certificate.entity';
+import { CreateCertificateDto } from '@/certificates/dto/create-certificate.dto';
+import { UpdateCertificateDto } from '@/certificates/dto/update-certificate.dto';
+import { CertificateEntity } from '@/certificates/entities/certificate.entity';
 
 @Injectable()
 export class CertificatesService {
   constructor(
-    @InjectRepository(Certificate)
-    private readonly repository: Repository<Certificate>,
+    @InjectRepository(CertificateEntity)
+    private readonly repository: Repository<CertificateEntity>,
   ) {}
 
   create(createCertificateDto: CreateCertificateDto) {
@@ -17,7 +17,8 @@ export class CertificatesService {
       ...createCertificateDto,
       templateData: {
         data: createCertificateDto.templateData.map((it) => ({
-          name: it.name,
+          name: 'full_name',
+          value: it.name,
           position: {
             x: it.x,
             y: it.y,
@@ -29,23 +30,24 @@ export class CertificatesService {
     return this.repository.save(certificate);
   }
 
-  findAll(): Promise<Certificate[]> {
+  findAll(): Promise<CertificateEntity[]> {
     return this.repository.find();
   }
 
-  findOne(id: number): Promise<Certificate> {
+  findOne(id: number): Promise<CertificateEntity> {
     return this.repository.findOne(id);
   }
 
   async update(
     id: number,
     updateCertificateDto: UpdateCertificateDto,
-  ): Promise<Certificate> {
+  ): Promise<CertificateEntity> {
     const result = await this.repository.update(id, {
       ...updateCertificateDto,
       templateData: {
         data: updateCertificateDto.templateData.map((it) => ({
-          name: it.name,
+          name: 'full_name',
+          value: it.name,
           position: {
             x: it.x,
             y: it.y,

@@ -7,10 +7,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { CertificateProperties } from '../interfaces/certificate-properties.interface';
-import { Person } from './owner.entity';
+import { PersonEntity } from './owner.entity';
 
-@Entity()
-export class Certificate {
+@Entity({ name: 'certificates' })
+export class CertificateEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -20,43 +20,30 @@ export class Certificate {
   @Column()
   description: string;
 
-  @Column({
-    name: 'template_file',
-  })
+  @Column()
   templateFile: string;
 
-  @Column({
-    type: 'json',
-    name: 'template_data',
-  })
+  @Column({ type: 'json' })
   templateData: CertificateProperties;
 
-  @Column({
-    name: 'certificate_file',
-  })
+  @Column({ nullable: true })
   certificateFile: string;
 
-  @Column({ nullable: true, name: 'issue_at' })
+  @Column({ nullable: true })
   issueAt: Date;
 
-  @Column(() => Person)
-  owner: Person;
+  @Column(() => PersonEntity)
+  owner: PersonEntity;
 
-  @Column(() => Person)
-  receiver: Person;
+  @Column(() => PersonEntity)
+  receiver: PersonEntity;
 
-  @CreateDateColumn({
-    name: 'created_at',
-  })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({
-    name: 'updated_at',
-  })
+  @UpdateDateColumn()
   updatedAt: Date;
 
-  @DeleteDateColumn({
-    name: 'deleted_at',
-  })
+  @DeleteDateColumn()
   deletedAt: Date;
 }

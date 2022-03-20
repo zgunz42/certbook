@@ -10,10 +10,12 @@ import { configs } from '@/common/config';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { LoggingMiddleware } from './common/middleware/logging.middleware';
+import { UsersModule } from './users/users.module';
 @Module({
   imports: [
     UploadsModule,
     CertificatesModule,
+    UsersModule,
     ConfigModule.forRoot({
       load: configs,
       isGlobal: true,

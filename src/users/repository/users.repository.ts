@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { FilterUserDto } from '../dto/filter-user.dto';
 import { UserCreateDto, UserUpdateDto } from '../dto/user.dto';
 import { UserEntity } from '../enitites/user.entity';
 import { NotFoundError } from '../exceptions/user-not-found.exception';
@@ -16,8 +17,16 @@ export class UserRepository {
     return this.repository.find();
   }
 
-  findOne(id: number): Promise<UserEntity> {
-    return this.repository.findOne(id);
+  findOne({ email, username }: FilterUserDto): Promise<UserEntity> {
+    if (email === undefined && username === undefined) {
+      throw new Error('You must provide email or username');
+    }
+    return this.repository.findOne({
+      where: {
+        email,
+        username,
+      },
+    });
   }
 
   async create(createUserDto: UserCreateDto): Promise<UserEntity> {

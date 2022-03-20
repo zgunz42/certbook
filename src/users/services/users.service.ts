@@ -7,6 +7,7 @@ import {
 } from '../exceptions/user-not-found.exception';
 import { UserRepository } from '../repository/users.repository';
 import bycript from 'bcrypt';
+import { FilterUserDto } from '../dto/filter-user.dto';
 
 @Injectable()
 export class UserService {
@@ -17,8 +18,24 @@ export class UserService {
     return this.repository.findAll();
   }
 
-  findOne(id: number): Promise<UserEntity> {
-    return this.repository.findOne(id);
+  findOne(filter: FilterUserDto): Promise<UserEntity> {
+    return this.repository.findOne(filter);
+  }
+
+  async findByCredential(
+    filter: FilterUserDto,
+    password: string,
+  ): Promise<UserEntity> {
+    const user = await this.repository.findOne(filter);
+    if (!user) {
+      throw new UserNotFoundException();
+    }
+    const isValidPass = await this.comparePassword(password, user.password);
+    if (isValidPass === true) {
+      return user;
+    }
+
+    throw new UserNotFoundException();
   }
 
   private comparePassword(password: string, hashedPassword: string) {

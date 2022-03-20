@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CertificatesService } from '@/certificates/services/certificates.service';
-import { CreateCertificateDto } from '@/certificates/dto/create-certificate.dto';
+import { CertificateDTO } from '@/certificates/dto/create-certificate.dto';
 import { UpdateCertificateDto } from '@/certificates/dto/update-certificate.dto';
 import { CaseInterceptor } from '@/common/interceptor/case.interceptor';
 
@@ -24,7 +24,7 @@ export class CertificatesController {
   @UseInterceptors(FileInterceptor('file'))
   create(
     @Body()
-    createCertificateDto: CreateCertificateDto,
+    createCertificateDto: CertificateDTO,
     @UploadedFile() file: Express.Multer.File,
   ) {
     if (file.mimetype !== 'application/pdf') {

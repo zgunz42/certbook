@@ -1,72 +1,52 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CreateCertificateDto } from '@/certificates/dto/create-certificate.dto';
+import { CreateCertDTO } from '@/certificates/dto/create-certificate.dto';
 import { UpdateCertificateDto } from '@/certificates/dto/update-certificate.dto';
 import { CertificateEntity } from '@/certificates/entities/certificate.entity';
+import { CertificateRepository } from '../repository/certificate.repository';
+import { UserService } from '@/users/services/users.service';
 
 @Injectable()
 export class CertificatesService {
   constructor(
-    @InjectRepository(CertificateEntity)
-    private readonly repository: Repository<CertificateEntity>,
+    private readonly userService: UserService,
+    private readonly repository: CertificateRepository,
   ) {}
 
-  create(createCertificateDto: CreateCertificateDto) {
-    const certificate = this.repository.create({
-      ...createCertificateDto,
-      templateData: {
-        data: createCertificateDto.templateData.map((it) => ({
-          name: 'full_name',
-          value: it.name,
-          position: {
-            x: it.x,
-            y: it.y,
-          },
-        })),
-      },
+  async create(cert: CreateCertDTO) {
+    const certEntity = new CertificateEntity();
+    const user = await this.userService.findOne({
+      username: cert.signer,
     });
-
-    return this.repository.save(certificate);
+    certEntity.name = cert.name;
+    certEntity.description = cert.description;
+    certEntity.issueAt = cert.issueAt;
+    certEntity.signer = user.signs;
+    return this.repository.create(certEntity);
   }
 
   findAll(): Promise<CertificateEntity[]> {
-    return this.repository.find();
+    return this.repository.findAll();
   }
 
   findOne(id: number): Promise<CertificateEntity> {
-    return this.repository.findOne(id);
+    return this.repository.findOne({ id });
   }
 
-  async update(
-    id: number,
-    updateCertificateDto: UpdateCertificateDto,
-  ): Promise<CertificateEntity> {
-    const result = await this.repository.update(id, {
-      ...updateCertificateDto,
-      templateData: {
-        data: updateCertificateDto.templateData.map((it) => ({
-          name: 'full_name',
-          value: it.name,
-          position: {
-            x: it.x,
-            y: it.y,
-          },
-        })),
-      },
-    });
-    if (result.affected === 0) {
+  async update(data: UpdateCertificateDto): Promise<CertificateEntity> {
+    const cert = await this.repository.findOne({ id: data.id });
+    if (!cert) {
       throw new Error('Certificate not found');
     }
-    return this.repository.findOne(id);
+    cert.name = data.name;
+    return this.repository.update(cert);
   }
 
   async remove(id: number): Promise<boolean> {
-    const result = await this.repository.delete(id);
-    if (result.affected === 0) {
-      throw new Error('Certificate not found');
+    try {
+      await this.repository.delete({ id });
+      return true;
+    } catch (error) {
+      return false;
     }
-
-    return true;
   }
 }

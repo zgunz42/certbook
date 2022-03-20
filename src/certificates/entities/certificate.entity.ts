@@ -1,18 +1,28 @@
+import { ParticipanEntity } from '@/events/entities/participan.entity';
+import { FileEntity } from '@/uploads/enitity/file.entity';
+import { UserEntity } from '@/users/enitites/user.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CertificateProperties } from '../interfaces/certificate-properties.interface';
-import { PersonEntity } from './owner.entity';
+import { SignEntity } from './sign.entity';
 
 @Entity({ name: 'certificates' })
 export class CertificateEntity {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({
+    unique: true,
+  })
+  serialNumber: string;
 
   @Column()
   name: string;
@@ -20,23 +30,12 @@ export class CertificateEntity {
   @Column()
   description: string;
 
-  @Column()
-  templateFile: string;
-
-  @Column({ type: 'json' })
-  templateData: CertificateProperties;
-
-  @Column({ nullable: true })
-  certificateFile: string;
+  @OneToOne(() => FileEntity)
+  @JoinColumn()
+  file: File;
 
   @Column({ nullable: true })
   issueAt: Date;
-
-  @Column(() => PersonEntity)
-  owner: PersonEntity;
-
-  @Column(() => PersonEntity)
-  receiver: PersonEntity;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -46,4 +45,11 @@ export class CertificateEntity {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @ManyToOne(() => SignEntity, (sign) => sign.documents)
+  signer: SignEntity;
+
+  @OneToOne(() => ParticipanEntity)
+  @JoinColumn()
+  receiver: ParticipanEntity;
 }

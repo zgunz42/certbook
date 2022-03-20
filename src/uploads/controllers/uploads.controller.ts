@@ -14,6 +14,7 @@ export class UploadsController {
     // file header
     res.setHeader('Content-Type', 'application/octet-stream');
     res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    res.setHeader('Cache-Control', 'must-revalidate');
     // file stream
     file.pipe(res);
   }

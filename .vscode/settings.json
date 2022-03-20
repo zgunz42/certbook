@@ -1,5 +1,13 @@
 {
     "conventionalCommits.scopes": [
-        "filesystem"
-    ]
+        "filesystem",
+        "auth",
+        "certificate",
+        "authroization"
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "eslint.format.enable": true,
+    "faker.locale": "id_ID",
 }

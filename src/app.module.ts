@@ -1,5 +1,5 @@
 import { UploadsModule } from '@/uploads/uploads.module';
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CertificatesModule } from './certificates/certificates.module';
@@ -7,6 +7,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import { configs } from '@/common/config';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { LoggingMiddleware } from './common/middleware/logging.middleware';
 @Module({
   imports: [
     UploadsModule,
@@ -15,8 +18,20 @@ import { configs } from '@/common/config';
       load: configs,
       isGlobal: true,
     }),
-    MulterModule.register({
-      dest: './public/data/uploads/',
+    MulterModule.registerAsync({
+      useFactory: async (configService: ConfigService) => ({
+        storage: diskStorage({
+          destination: configService.get('filesystems.uploads.path'),
+          filename: (req, file, cb) => {
+            const randomName = Array(32)
+              .fill(null)
+              .map(() => Math.round(Math.random() * 16).toString(16))
+              .join('');
+            return cb(null, `${randomName}${extname(file.originalname)}`);
+          },
+        }),
+      }),
+      inject: [ConfigService],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -28,4 +43,8 @@ import { configs } from '@/common/config';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggingMiddleware).forRoutes('/api/v1/*');
+  }
+}

@@ -11,7 +11,10 @@ export class UploadsController {
   async getFile(@Res() res, @Param('filename') filename: string) {
     const filePath = `./public/data/uploads/${filename}`;
     const file = createReadStream(filePath);
-
+    // file header
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    // file stream
     file.pipe(res);
   }
 }

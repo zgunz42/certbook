@@ -14,28 +14,14 @@ import { CertificatesService } from '@/certificates/services/certificates.servic
 import { CreateCertificateDto } from '@/certificates/dto/create-certificate.dto';
 import { UpdateCertificateDto } from '@/certificates/dto/update-certificate.dto';
 import { CaseInterceptor } from '@/common/interceptor/case.interceptor';
-import { diskStorage } from 'multer';
 
-@Controller('certificates')
+@Controller('api/v1/certificates')
 @UseInterceptors(CaseInterceptor)
 export class CertificatesController {
   constructor(private readonly certificatesService: CertificatesService) {}
 
   @Post()
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './public/data/uploads/',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          return cb(null, `${randomName}-${file.originalname}`);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file'))
   create(
     @Body()
     createCertificateDto: CreateCertificateDto,
